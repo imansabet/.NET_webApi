@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Model;
 
 namespace WebApplication1.Controllers
@@ -8,6 +9,7 @@ namespace WebApplication1.Controllers
 
     public class CategoryController: ControllerBase
     {
+
         private static List<CategoryModel> categories = new List<CategoryModel>()
         {
             new CategoryModel(){Id = 1,Name = "dram" },
@@ -23,6 +25,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public IActionResult AddCategory(CategoryModel obj) 
         {
             categories.Add(obj);
@@ -31,6 +34,7 @@ namespace WebApplication1.Controllers
         }
         
         [HttpPut]
+        [Authorize]
         public IActionResult EditCategory(CategoryModel obj) 
         {
             var selectedCategory = categories.FirstOrDefault(u => u.Id == obj.Id);
@@ -39,7 +43,9 @@ namespace WebApplication1.Controllers
             return Ok("Category Updated Successfully");
         }
 
+        
         [HttpDelete("{id}")]
+        [Authorize]
         public IActionResult DeleteCategory(int id) 
         {
             var selectedCategory = categories.FirstOrDefault(u => u.Id == id);
@@ -47,6 +53,31 @@ namespace WebApplication1.Controllers
             return Ok(" DONE  . .  . ");
 
         }
+
+        private static string _username;
+        private static string _password;
+
+        [HttpPost]
+        public IActionResult Register(string username, string password) 
+        {
+            _username = username;
+            _password = BCrypt.Net.BCrypt.HashPassword(password);
+            return Ok(new { username = _username, password = _password });
+        }
+
+        [HttpPost]
+        public IActionResult Login(string username, string password)
+        {
+            if (username == _username && BCrypt.Net.BCrypt.Verify(password, _password)) 
+            {
+                return Ok("Login was Completed ");
+            }
+            else
+            {
+                return BadRequest("Username or Pass are  Invalid");
+            }
+        }
+
 
 
 
