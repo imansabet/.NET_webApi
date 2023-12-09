@@ -1,5 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using WebApplication1.Model;
 
 namespace WebApplication1.Controllers
@@ -70,7 +74,8 @@ namespace WebApplication1.Controllers
         {
             if (username == _username && BCrypt.Net.BCrypt.Verify(password, _password)) 
             {
-                return Ok("Login was Completed ");
+                var token = JasonWebToken.GenerateJWTToken(username);
+                return Ok(token);
             }
             else
             {
@@ -78,8 +83,34 @@ namespace WebApplication1.Controllers
             }
         }
 
+        public static class JasonWebToken
+        {
+            public static string GenerateJWTToken(string username)
+            {
+                var key = Encoding.ASCII.GetBytes("imanuyiotuyuriutyeruityiurytyeruity");
+                //create token handler
+                var tokenHandler = new JwtSecurityTokenHandler();
+                //create token descriptor
+                var tokenDescriptor = new SecurityTokenDescriptor()
+                {
+                    Subject = new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.Name, username),
+
+                    }),
+                    Expires = DateTime.UtcNow.AddHours(1),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                };
+                //create token
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                //return token
+                return tokenHandler.WriteToken(token);
+            }
+        }
+        }
 
 
 
-    }
+
 }
+
