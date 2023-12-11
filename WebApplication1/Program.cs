@@ -30,7 +30,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidateAudience = false,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("this is my custom secret key for authentication"))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("this is iman sabet custom secret key ,do not copy"))
     };
 });
 
